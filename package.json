@@ -1,0 +1,29 @@
+{
+  "name": "woospy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SSARCandy/WooSpy.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SSARCandy/WooSpy/issues"
+  },
+  "homepage": "https://github.com/SSARCandy/WooSpy#readme",
+  "dependencies": {
+    "eslint": "^6.7.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
+    "ws": "^7.2.0"
+  }
+}

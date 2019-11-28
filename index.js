@@ -1,65 +1,44 @@
 'use strict';
 
-const ChartRoom = require('./src/index.js');
+const ChatRoom = require('./src/woospy.js');
 
 const sessions = [
-  'c3805a7f55743513a4da7a7ef2448951',
-  '',
+  '222b2fc8abd271d6390206f5b5300002',
+  'c8ab1e037ddbfc2aeff91518a014d3db',
 ];
 
-const randint = () => Math.floor((Math.random() * 100000) + 50000);
-const randstr = () => Math.random().toString(36).substring(2,10);
-
-function handle_onmessage(ws, payload) {
-  const { data } = payload;
-  if (data.length && data[0].sender === 0 && data[0].leave) {
-    ws.send('["change_person",{}]');
-    console.log('change person');
-  } else if (data.sender === 2){
-    setTimeout(() => {
-      const r = ['new_message', { id: randint(), data: { message: randstr(), msg_id: randstr() } }];
-      ws.send(JSON.stringify(r));
-    }, 1000);
-  }
-}
-
-function handle_pingpong(ws) {
-  const pong = `["websocket_rails.pong",{"id": ${randint()},"data":{}}]`;
-  ws.send(pong);
-}
 
 (async () => {
-
-  const Chart_1 = new ChartRoom(sessions[0]);
-  Chart_1.register_listener('open', () => {
-    console.log('open');
+  const chat_1 = new ChatRoom(sessions[0]);
+  const chat_2 = new ChatRoom(sessions[1]);
+  const kick_all = () => {
+    chat_1.leave();
+    chat_2.leave();
+    
+    setTimeout(() => {
+      chat_1.restart();
+      chat_2.restart();
+    }, 3000);
+  };
+  chat_1.handle_leave = kick_all;
+  chat_2.handle_leave = kick_all;
+  
+  chat_1.handle_newmessage = (payload) => {
+    const { data } = payload;
+    console.log(`${chat_1.session} ${data.message}`);
+    chat_2.send_msg(data.message);
+  };
+  chat_2.handle_newmessage = (payload) => {
+    const { data } = payload;
+    console.log(`${chat_2.session} ${data.message}`);
+    chat_1.send_msg(data.message);
+  };
+  
+  chat_1.register_listener('open', () => {
+    console.log('room 1 ready, start initialize room 2...');
+    chat_2.start();
   });
 
-  Chart_1.register_listener('close', () => {
-    console.log('close');
-  });
-
-  Chart_1.register_listener('message', (msg) => {
-    const [event, payload] = JSON.parse(msg)[0];
-
-    switch (event){
-    case 'client_connected':
-      break;
-    case 'new_message':
-      handle_onmessage(Chart_1.ws, payload);
-      break;
-    case 'websocket_rails.ping':
-      handle_pingpong(Chart_1.ws);
-      break;
-    case 'update_state':
-      break;
-    default:
-      console.log('unsupport event', event);
-    }
-
-    console.log(msg);
-  });
-
-  Chart_1.start();
+  chat_1.start();
 
 })();

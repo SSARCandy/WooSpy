@@ -72,6 +72,7 @@ class ChatRoom {
               this.handle_leave();
             } else if (data[0].status === 'chat_botcheck') {
               console.log(this.session, data[0].status, data[0].message);
+              process.exit(1);
             }
           } else if (data.sender === 2) {
             this.handle_newmessage(payload);
